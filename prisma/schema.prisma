@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  displayName  String
+  avatar       String   @default("👤")
+  createdAt    DateTime @default(now())
+
+  createdTodos    Todo[]      @relation("TodoCreator")
+  completedTodos  Todo[]      @relation("TodoCompleter")
+  createdWishes   WishItem[]  @relation("WishCreator")
+  purchasedWishes WishItem[]  @relation("WishPurchaser")
+}
+
+model InviteCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  maxUses   Int      @default(2)
+  usedCount Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Todo {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdByUserId String
+  createdBy       User   @relation("TodoCreator", fields: [createdByUserId], references: [id])
+
+  completedByUserId String?
+  completedBy       User?  @relation("TodoCompleter", fields: [completedByUserId], references: [id])
+}
+
+model WishItem {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  link        String?
+  price       Float?
+  priority    String    @default("medium")
+  status      String    @default("active")
+  hidden      Boolean   @default(false)
+  purchasedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdByUserId String
+  createdBy       User   @relation("WishCreator", fields: [createdByUserId], references: [id])
+
+  purchasedByUserId String?
+  purchasedBy       User?  @relation("WishPurchaser", fields: [purchasedByUserId], references: [id])
+}
