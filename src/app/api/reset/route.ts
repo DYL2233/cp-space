@@ -2,7 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // One-time reset: clear all data and re-seed invite codes
+export async function GET() {
+  return handleReset();
+}
+
 export async function POST() {
+  return handleReset();
+}
+
+async function handleReset() {
   try {
     await prisma.todo.deleteMany();
     await prisma.wishItem.deleteMany();
